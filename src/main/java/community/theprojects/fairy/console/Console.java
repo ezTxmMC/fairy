@@ -275,6 +275,7 @@ public class Console {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 printer.println(HexColor.colorText("Error auto-starting " + config.getServerId() + ": " + e.getMessage(), HexColor.Colors.RED), true);
+                return;
             } catch (Exception e) {
                 printer.println(HexColor.colorText("Error auto-starting " + config.getServerId() + ": " + e.getMessage(), HexColor.Colors.RED), true);
             }
