@@ -71,7 +71,6 @@ public class Console {
             this.minecraftCommandManager = new MinecraftCommandManager(minecraftServerManager, printer);
             this.serverConfigManager = new ServerConfigManager(printer);
 
-            // Link ServerConfigManager to MinecraftServerManager
             this.minecraftServerManager.setServerConfigManager(serverConfigManager);
             this.autoRestartMonitor = new AutoRestartMonitor(minecraftServerManager, serverConfigManager, processManager, printer);
             this.screenManager = new ServerScreenManager(processManager, printer, reader);
@@ -86,10 +85,8 @@ public class Console {
             terminal.flush();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    // Save history
                     reader.getHistory().save();
 
-                    // Stop all running processes
                     printer.println(HexColor.colorText("Shutting down all server processes...", HexColor.Colors.ORANGE), true);
 
                     if (autoRestartMonitor != null) {
@@ -138,16 +135,14 @@ public class Console {
             String cmd = parts[0];
             String arg = parts.length > 1 ? parts[1] : "";
 
-            // Check if we're in a server screen and handle input accordingly
             if (screenManager.isInServerScreen()) {
-                // Try to send input to current screen first
                 if (!screenManager.sendInputToCurrentScreen(line)) {
-                    // If screen couldn't handle it, treat as normal command
                     handleNormalCommand(cmd, parts, arg);
                 }
-            } else {
-                handleNormalCommand(cmd, parts, arg);
+                terminal.flush();
+                continue;
             }
+            handleNormalCommand(cmd, parts, arg);
             terminal.flush();
         }
         this.end();
@@ -190,20 +185,8 @@ public class Console {
             }
         }
 
-        if (isPortAvailable(apiPort)) {
-            boolean success = apiServer.start(apiPort);
-            if (success) {
-                printer.println(HexColor.colorText("REST API automatically started on port " + apiPort, HexColor.Colors.GREEN), true);
-                printer.println(HexColor.colorText("API Endpoint: http://localhost:" + apiPort + "/api", HexColor.Colors.GRAY), true);
-                printer.println(HexColor.colorText("API Token: " + apiServer.getApiToken(), HexColor.Colors.CYAN), true);
-                printer.println(HexColor.colorText("Use 'api status' for more information", HexColor.Colors.GRAY), true);
-            } else {
-                printer.println(HexColor.colorText("Failed to auto-start API server on port " + apiPort, HexColor.Colors.RED), true);
-                printer.println(HexColor.colorText("You can manually start it with: api start <port>", HexColor.Colors.YELLOW), true);
-            }
-        } else {
+        if (!isPortAvailable(apiPort)) {
             printer.println(HexColor.colorText("Port " + apiPort + " is not available for API server", HexColor.Colors.YELLOW), true);
-
             int alternativePort = findAvailablePort(apiPort + 1, apiPort + 100);
             if (alternativePort != -1) {
                 boolean success = apiServer.start(alternativePort);
@@ -211,11 +194,22 @@ public class Console {
                     printer.println(HexColor.colorText("API started on alternative port " + alternativePort, HexColor.Colors.GREEN), true);
                     printer.println(HexColor.colorText("API Token: " + apiServer.getApiToken(), HexColor.Colors.CYAN), true);
                 }
-            } else {
-                printer.println(HexColor.colorText("No available ports found for API server", HexColor.Colors.RED), true);
-                printer.println(HexColor.colorText("Start manually with: api start <port>", HexColor.Colors.YELLOW), true);
+                return;
             }
+            printer.println(HexColor.colorText("No available ports found for API server", HexColor.Colors.RED), true);
+            printer.println(HexColor.colorText("Start manually with: api start <port>", HexColor.Colors.YELLOW), true);
+            return;
         }
+        boolean success = apiServer.start(apiPort);
+        if (success) {
+            printer.println(HexColor.colorText("REST API automatically started on port " + apiPort, HexColor.Colors.GREEN), true);
+            printer.println(HexColor.colorText("API Endpoint: http://localhost:" + apiPort + "/api", HexColor.Colors.GRAY), true);
+            printer.println(HexColor.colorText("API Token: " + apiServer.getApiToken(), HexColor.Colors.CYAN), true);
+            printer.println(HexColor.colorText("Use 'api status' for more information", HexColor.Colors.GRAY), true);
+            return;
+        }
+        printer.println(HexColor.colorText("Failed to auto-start API server on port " + apiPort, HexColor.Colors.RED), true);
+        printer.println(HexColor.colorText("You can manually start it with: api start <port>", HexColor.Colors.YELLOW), true);
     }
 
     private boolean isPortAvailable(int port) {
@@ -272,20 +266,18 @@ public class Console {
                     config.updateLastStart();
                     serverConfigManager.updateServerConfiguration(config);
                     autoRestartMonitor.registerRunningServer(config.getServerId());
-
-                    printer.println(HexColor.colorText("Auto-started: " + config.getServerId(), 
-                                   HexColor.Colors.GREEN), true);
-                } else {
-                    printer.println(HexColor.colorText("Failed to auto-start: " + config.getServerId(), 
-                                   HexColor.Colors.RED), true);
+                    printer.println(HexColor.colorText("Auto-started: " + config.getServerId(), HexColor.Colors.GREEN), true);
                 }
-
-                // Small delay between server starts
+                if (!success) {
+                    printer.println(HexColor.colorText("Failed to auto-start: " + config.getServerId(), HexColor.Colors.RED), true);
+                }
                 Thread.sleep(2000);
-
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                printer.println(HexColor.colorText("Error auto-starting " + config.getServerId() + ": " + e.getMessage(), HexColor.Colors.RED), true);
+                break;
             } catch (Exception e) {
-                printer.println(HexColor.colorText("Error auto-starting " + config.getServerId() + ": " + e.getMessage(), 
-                               HexColor.Colors.RED), true);
+                printer.println(HexColor.colorText("Error auto-starting " + config.getServerId() + ": " + e.getMessage(), HexColor.Colors.RED), true);
             }
         }
     }
