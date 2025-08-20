@@ -1,4 +1,4 @@
-package community.theprojects.fairy.node.exception;
+package community.theprojects.fairy.api.exception;
 
 public class NoTerminalFoundException extends RuntimeException {
 
