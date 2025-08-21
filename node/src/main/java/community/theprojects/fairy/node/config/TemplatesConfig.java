@@ -37,6 +37,7 @@ public class TemplatesConfig implements IConfig {
                 }
                 index.set(index.getAndIncrement());
             });
+            System.out.println(this.templates.get(removeIndex.get()));
             this.templates.remove(removeIndex.get());
             JsonFileHandler.writeToFile(this, "storage/templates.json");
         } catch (IOException e) {

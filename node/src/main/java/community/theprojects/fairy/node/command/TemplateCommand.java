@@ -29,27 +29,13 @@ public class TemplateCommand implements ICommand {
     @Override
     public void execute(String[] args) {
         if (args.length < 1) {
-            this.printer.println(HexColor.colorText("========[ ", HexColor.Colors.ORANGE)
-                    + HexColor.colorText("Usage:", HexColor.Colors.YELLOW)
-                    + HexColor.colorText(" ]========", HexColor.Colors.ORANGE), true);
-            this.printer.println(HexColor.colorText("template create <name> <path>", HexColor.Colors.YELLOW), true);
-            this.printer.println(HexColor.colorText("template remove <name>", HexColor.Colors.YELLOW), true);
-            this.printer.println(HexColor.colorText("========[ ", HexColor.Colors.ORANGE)
-                    + HexColor.colorText("Usage:", HexColor.Colors.YELLOW)
-                    + HexColor.colorText(" ]========", HexColor.Colors.ORANGE), true);
+            sendUsage();
             return;
         }
         switch (args[0].toLowerCase()) {
             case "create" -> {
                 if (args.length < 2) {
-                    this.printer.println(HexColor.colorText("========[ ", HexColor.Colors.ORANGE)
-                            + HexColor.colorText("Usage", HexColor.Colors.YELLOW)
-                            + HexColor.colorText(" ]========", HexColor.Colors.ORANGE), true);
-                    this.printer.println(HexColor.colorText("template create <name> <path>", HexColor.Colors.YELLOW), true);
-                    this.printer.println(HexColor.colorText("template remove <name>", HexColor.Colors.YELLOW), true);
-                    this.printer.println(HexColor.colorText("========[ ", HexColor.Colors.ORANGE)
-                            + HexColor.colorText("Usage", HexColor.Colors.YELLOW)
-                            + HexColor.colorText(" ]========", HexColor.Colors.ORANGE), true);
+                    sendUsage();
                     return;
                 }
                 args = Arrays.copyOfRange(args, 1, args.length);
@@ -62,12 +48,23 @@ public class TemplateCommand implements ICommand {
         }
     }
 
+    private void sendUsage() {
+        this.printer.println(HexColor.colorText("========[ ", HexColor.Colors.ORANGE)
+                + HexColor.colorText("Usage", HexColor.Colors.YELLOW)
+                + HexColor.colorText(" ]========", HexColor.Colors.ORANGE), true);
+        this.printer.println(HexColor.colorText("template create <name> <path>", HexColor.Colors.YELLOW), true);
+        this.printer.println(HexColor.colorText("template remove <name>", HexColor.Colors.YELLOW), true);
+        this.printer.println(HexColor.colorText("========[ ", HexColor.Colors.ORANGE)
+                + HexColor.colorText("Usage", HexColor.Colors.YELLOW)
+                + HexColor.colorText(" ]========", HexColor.Colors.ORANGE), true);
+    }
+
     private void createTemplate(String[] args) {
         try {
-        IConfig templatesConfig = this.node.getTemplatesConfig();
-        String name = args[0];
-        String path = args[1];
-        ((TemplatesConfig) templatesConfig).addTemplate(new GroupTemplate(name, path, new ArrayList<>()));
+            IConfig templatesConfig = this.node.getTemplatesConfig();
+            String name = args[0];
+            String path = args[1];
+            ((TemplatesConfig) templatesConfig).addTemplate(new GroupTemplate(name, path, new ArrayList<>()));
             Files.createDirectories(Path.of(path));
         } catch (IOException e) {
             throw new RuntimeException(e);
