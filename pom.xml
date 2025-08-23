@@ -13,9 +13,10 @@
     <modules>
         <module>api</module>
         <module>node</module>
-        <module>wrapper</module>
         <module>rest-server</module>
         <module>rest-client</module>
+        <module>util</module>
+        <module>worker</module>
     </modules>
 
     <properties>

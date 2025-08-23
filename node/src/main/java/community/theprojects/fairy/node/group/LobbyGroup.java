@@ -7,30 +7,9 @@ import community.theprojects.fairy.api.group.IType;
 import community.theprojects.fairy.api.group.ServerType;
 import community.theprojects.fairy.api.util.JavaVersion;
 
-public class LobbyGroup implements IGroup, IConfig {
-    private final String id;
-    private final String name;
-    private final String description;
-    private final int minimumMemory;
-    private final int maximumMemory;
-    private final int maxPlayers;
-    private final boolean staticServices;
-    private final ServerType serverType;
-    private final JavaVersion javaVersion;
-    private final IGroupTemplate groupTemplate;
-
-    public LobbyGroup(String id, String name, String description, int minimumMemory, int maximumMemory, int maxPlayers, boolean staticServices, ServerType serverType, JavaVersion javaVersion, IGroupTemplate groupTemplate) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.minimumMemory = minimumMemory;
-        this.maximumMemory = maximumMemory;
-        this.maxPlayers = maxPlayers;
-        this.staticServices = staticServices;
-        this.serverType = serverType;
-        this.javaVersion = javaVersion;
-        this.groupTemplate = groupTemplate;
-    }
+public record LobbyGroup(String id, String name, String description, int minimumMemory, int maximumMemory,
+                         int maxPlayers, boolean staticServices, ServerType serverType, JavaVersion javaVersion,
+                         IGroupTemplate groupTemplate) implements IGroup, IConfig {
 
     @Override
     public String getId() {

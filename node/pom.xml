@@ -65,6 +65,13 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>eztxm-repo</id>
+            <url>https://repo.eztxm.de/maven/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
@@ -72,14 +79,14 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20250517</version>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>util</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.javalin</groupId>
-            <artifactId>javalin</artifactId>
-            <version>6.7.0</version>
+            <groupId>com.nexoscript</groupId>
+            <artifactId>nexonet-server</artifactId>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

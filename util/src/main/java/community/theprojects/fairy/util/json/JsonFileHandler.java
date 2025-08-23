@@ -1,4 +1,4 @@
-package community.theprojects.fairy.node.config;
+package community.theprojects.fairy.util.json;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

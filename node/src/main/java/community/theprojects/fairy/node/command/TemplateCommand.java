@@ -41,10 +41,11 @@ public class TemplateCommand implements ICommand {
                 args = Arrays.copyOfRange(args, 1, args.length);
                 this.createTemplate(args);
             }
-            case "delete" -> {
+            case "remove" -> {
                 args = Arrays.copyOfRange(args, 1, args.length);
-                this.deleteTemplate(args);
+                this.removeTemplate(args);
             }
+            default -> sendUsage();
         }
     }
 
@@ -64,16 +65,26 @@ public class TemplateCommand implements ICommand {
             IConfig templatesConfig = this.node.getTemplatesConfig();
             String name = args[0];
             String path = args[1];
+            if (((TemplatesConfig) templatesConfig).isTemplateExisting(name)) {
+                this.printer.println(HexColor.colorText("Template '" + name + "' already existing", HexColor.Colors.YELLOW), true);
+                return;
+            }
             ((TemplatesConfig) templatesConfig).addTemplate(new GroupTemplate(name, path, new ArrayList<>()));
             Files.createDirectories(Path.of(path));
+            this.printer.println(HexColor.colorText("Template '" + name + "' created", HexColor.Colors.YELLOW), true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void deleteTemplate(String[] args) {
+    private void removeTemplate(String[] args) {
+        System.out.println(Arrays.toString(args));
         IConfig templatesConfig = this.node.getTemplatesConfig();
         String name = args[0];
+        if (!((TemplatesConfig) templatesConfig).isTemplateExisting(name)) {
+            this.printer.println(HexColor.colorText("Template '" + name + "' not existing", HexColor.Colors.YELLOW), true);
+            return;
+        }
         ((TemplatesConfig) templatesConfig).removeTemplate(name);
     }
 

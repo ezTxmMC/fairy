@@ -18,6 +18,16 @@ public class GroupManager implements IGroupManager {
     }
 
     @Override
+    public void stopService(String groupName, int number) {
+
+    }
+
+    @Override
+    public void stopServices(String groupName, int... number) {
+
+    }
+
+    @Override
     public void shutdownGroup(String groupName) {
 
     }

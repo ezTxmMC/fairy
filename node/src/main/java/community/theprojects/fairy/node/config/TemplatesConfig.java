@@ -2,12 +2,15 @@ package community.theprojects.fairy.node.config;
 
 import community.theprojects.fairy.api.config.IConfig;
 import community.theprojects.fairy.api.group.IGroupTemplate;
+import community.theprojects.fairy.util.json.JsonFileHandler;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TemplatesConfig implements IConfig {
     private final List<JSONObject> templates;
@@ -19,7 +22,7 @@ public class TemplatesConfig implements IConfig {
     public void addTemplate(IGroupTemplate template) {
         try {
             JSONObject templateJson = new JSONObject();
-            templateJson.append("name", template.name()).append("path", template.path().toString()).append("groups", template.groups());
+            templateJson.put("name", template.name()).put("path", template.path()).put("groups", template.groups());
             this.templates.add(templateJson);
             JsonFileHandler.writeToFile(this, "storage/templates.json");
         } catch (IOException e) {
@@ -37,9 +40,8 @@ public class TemplatesConfig implements IConfig {
                 }
                 index.set(index.getAndIncrement());
             });
-            System.out.println(this.templates.get(removeIndex.get()));
             this.templates.remove(removeIndex.get());
-            JsonFileHandler.writeToFile(this, "storage/templates.json");
+            JsonFileHandler.writeToFile(this, "storage/templates.json", true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -67,6 +69,36 @@ public class TemplatesConfig implements IConfig {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isTemplateExisting(String name) {
+        AtomicBoolean exists = new AtomicBoolean(false);
+        this.getTemplates().forEach(template -> {
+            if (template.getString("name").equalsIgnoreCase(name)) {
+                exists.set(true);
+            }
+        });
+        return exists.get();
+    }
+
+    public boolean isGroupHavingTemplate(String groupName) {
+        AtomicBoolean having = new AtomicBoolean(false);
+        this.getTemplates().forEach(template -> {
+            if (template.getJSONArray("groups").toList().contains(groupName)) {
+                having.set(true);
+            }
+        });
+        return having.get();
+    }
+
+    public String getTemplateByGroupName(String groupName) {
+        AtomicReference<String> templateName = new AtomicReference<>();
+        this.getTemplates().forEach(template -> {
+            if (template.getJSONArray("groups").toList().contains(groupName)) {
+                templateName.set(template.getString("name"));
+            }
+        });
+        return templateName.get();
     }
 
     public List<JSONObject> getTemplates() {

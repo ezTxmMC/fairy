@@ -9,12 +9,32 @@
         <version>1.0.0_DEV+1</version>
     </parent>
 
-    <artifactId>wrapper</artifactId>
+    <artifactId>util</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>eztxm-repo</id>
+            <url>https://repo.eztxm.de/maven/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.nexoscript</groupId>
+            <artifactId>nexonet-api</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20250517</version>
+        </dependency>
+    </dependencies>
 
 </project>
