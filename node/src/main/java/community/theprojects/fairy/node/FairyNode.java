@@ -8,8 +8,8 @@ import community.theprojects.fairy.node.command.*;
 import community.theprojects.fairy.node.config.NodeConfig;
 import community.theprojects.fairy.node.config.TemplatesConfig;
 import community.theprojects.fairy.node.console.Console;
-import community.theprojects.fairy.node.network.NodeServer;
 import community.theprojects.fairy.util.json.JsonFileHandler;
+import community.theprojects.fairy.webinterface.FairyWebinterface;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public final class FairyNode implements INode {
     private final String name;
     private final String description;
     private final String version;
-    private NodeServer nodeServer;
+    private FairyWebinterface webinterface;
     private IConsole console;
     private ICommandHandler commandHandler;
 
@@ -56,7 +56,7 @@ public final class FairyNode implements INode {
 
     @Override
     public void init() {
-        this.nodeServer = new NodeServer();
+        this.webinterface = new FairyWebinterface(8080);
         this.console = new Console();
         this.commandHandler = new CommandHandler();
         this.commandHandler.addCommand("exit", new ExitCommand("Shutting down node."));
@@ -67,13 +67,13 @@ public final class FairyNode implements INode {
 
     @Override
     public void start() {
-        this.nodeServer.start();
+        this.webinterface.start();
         this.console.start();
     }
 
     @Override
     public void stop() {
-        this.nodeServer.interrupt();
+        this.webinterface.stop();
         this.commandHandler = null;
         this.console.stop();
         this.console = null;

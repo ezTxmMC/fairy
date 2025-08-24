@@ -12,5 +12,6 @@ public interface IWorker {
     IConfig getConfig();
     UUID getId();
     String getName();
+    String getVersion();
 
 }

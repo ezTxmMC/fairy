@@ -8,5 +8,6 @@ public enum JavaVersion {
     V21,
     V22,
     V23,
-    V24
+    V24,
+    V25
 }

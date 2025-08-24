@@ -16,7 +16,8 @@
         <module>rest-server</module>
         <module>rest-client</module>
         <module>util</module>
-        <module>worker</module>
+        <module>group-runner</module>
+        <module>webinterface</module>
     </modules>
 
     <properties>
