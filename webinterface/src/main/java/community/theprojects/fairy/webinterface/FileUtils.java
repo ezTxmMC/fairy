@@ -3,6 +3,8 @@ package community.theprojects.fairy.webinterface;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Comparator;
@@ -91,4 +93,38 @@ class FileUtils {
                 "Connection: close\r\n\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(body);
     }
+
+    /**
+     * Liefert einen Pfad zu einem Ressourcen-Verzeichnis (z. B. "dist").
+     * Wenn die Ressourcen aus einem JAR geladen werden, wird das Verzeichnis in ein temporäres
+     * Verzeichnis extrahiert und der Pfad dorthin zurückgegeben.
+     *
+     * @param dirName Verzeichnisname relativ zum Classpath-Root (ohne führenden Slash)
+     * @return Pfad zum Verzeichnis oder null, falls nicht gefunden/fehlgeschlagen
+     */
+    static Path getStaticRootFromResources(String dirName) {
+        try {
+            String res = dirName.startsWith("/") ? dirName.substring(1) : dirName;
+            URL url = FileUtils.class.getClassLoader().getResource(res);
+            if (url == null) return null;
+
+            if ("file".equalsIgnoreCase(url.getProtocol())) {
+                return Paths.get(url.toURI()).toAbsolutePath().normalize();
+            }
+
+            // Bei jar:-URLs in temporäres Verzeichnis extrahieren
+            if ("jar".equalsIgnoreCase(url.getProtocol())) {
+                Path tmpBase = Paths.get(System.getProperty("java.io.tmpdir"), "fairy-webinterface-static");
+                Files.createDirectories(tmpBase);
+                Path tmp = Files.createTempDirectory(tmpBase, res.replace('/', '-') + "-");
+                URI uri = url.toURI();
+                try (FileSystem fs = FileSystems.newFileSystem(uri, java.util.Map.of())) {
+                    Path jarDir = Paths.get(uri);
+                    copyDirectory(jarDir, tmp);
+                }
+                return tmp;
+            }
+        } catch (Exception ignored) { }
+        return null;
+        }
 }
